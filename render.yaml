@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: debriefpro-backend
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn debriefpro.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+      - key: DEBUG
+      - key: DATABASE_URL
+      - key: CORS_ALLOWED_ORIGINS
+      - key: CSRF_TRUSTED_ORIGINS
+
+  - type: static
+    name: debriefpro-frontend
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd frontend && npm install && npm run build
+    publishDirectory: frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL

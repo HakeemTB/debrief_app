@@ -3,7 +3,7 @@
  */
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 
-const BASE_URL = '/api'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -37,6 +37,11 @@ client.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+        // Avoid triggering global redirect for authentication endpoints
+        const reqUrl = originalRequest.url || ''
+        if (reqUrl.includes('/auth/login') || reqUrl.includes('/auth/register') || reqUrl.includes('/auth/refresh')) {
+          return Promise.reject(error)
+        }
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })

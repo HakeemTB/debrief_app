@@ -5,6 +5,7 @@ SQLite by default; switch to PostgreSQL via environment variables.
 import os
 from pathlib import Path
 from datetime import timedelta
+from urllib.parse import unquote, urlparse
 
 # Load .env if present
 try:
@@ -129,11 +130,16 @@ SIMPLE_JWT = {
 }
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-]
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173',
+).split(',')
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = (
+    os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if os.environ.get('CSRF_TRUSTED_ORIGINS')
+    else []
+)
 
 # ─── Internationalisation ─────────────────────────────────────────────────────
 LANGUAGE_CODE = 'en-us'
